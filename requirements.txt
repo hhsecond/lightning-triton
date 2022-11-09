@@ -1,0 +1,1 @@
+lightning_api_access@ git+https://github.com/Lightning-AI/LAI-API-Access-UI-Component@main
