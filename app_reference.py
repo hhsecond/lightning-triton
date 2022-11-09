@@ -9,6 +9,7 @@ import lightning as L
 import uvicorn
 from fastapi import FastAPI
 from lightning_api_access import APIAccessFrontend
+from pydantic import BaseModel
 
 
 class DiffusionBuildConfig(L.BuildConfig):
@@ -55,12 +56,15 @@ class APIComponent(L.LightningWork):
 
         fastapi_app = FastAPI()
 
+        class Data(BaseModel):
+            prompt: str
+
         @fastapi_app.post("/predict")
-        async def predict(prompt: str):
+        async def predict(data: Data):
             client = httpclient.InferenceServerClient(
                 url=serve_engine_url, connection_timeout=1200.0, network_timeout=1200.0
             )
-            text_obj = np.array([prompt], dtype="object").reshape((-1, 1))
+            text_obj = np.array([data.prompt], dtype="object").reshape((-1, 1))
             input_text = httpclient.InferInput(
                 "prompt", text_obj.shape, np_to_triton_dtype(text_obj.dtype)
             )
